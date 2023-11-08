@@ -32,6 +32,15 @@ async function run() {
 
     const assignmentCollections = client.db('learniverse').collection('allAssignments');
 
+
+
+    // Read all data
+    app.get('/assignments', async(req,res) =>{
+      const cursor = assignmentCollections.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
   //Posting New Assignments to the DataBase 
     app.post('/assignments', async(req,res)=>{
       const newAssignments = req.body;
