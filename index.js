@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-require('dotenv').config()
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -9,8 +9,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
-console.log(process.env.DB_PASS)
+console.log(process.env.DB_PASS);
 
 // Mongodb
 
@@ -22,7 +21,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -30,46 +29,61 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const assignmentCollections = client.db('learniverse').collection('allAssignments');
+    const assignmentCollections = client
+      .db("learniverse")
+      .collection("allAssignments");
 
-    const assignmentSubmissions = client.db('learniverse').collection('allSubmissions');
-
-
+    const assignmentSubmissions = client
+      .db("learniverse")
+      .collection("allSubmissions");
 
     // Read all data
-    app.get('/assignments', async(req,res) =>{
+    app.get("/assignments", async (req, res) => {
       const cursor = assignmentCollections.find();
       const result = await cursor.toArray();
       res.send(result);
-    })
+    });
 
     // Reading all submitted data from the data base
-    app.get('/submissions', async(req,res) => {
+    app.get("/submissions", async (req, res) => {
+      console.log(req.query);
       const cursor = assignmentSubmissions.find();
       const result = await cursor.toArray();
       res.send(result);
-    })
+    });
 
-  //Posting New Assignments to the DataBase 
-    app.post('/assignments', async(req,res)=>{
+    // Read personal submission data
+    app.get("/mySubmissions", async (req, res) => {
+      console.log(req.query.submitterEmail);
+      let query = {};
+      if (req.query?.submitterEmail) {
+        query = { submitterEmail: req.query.submitterEmail };
+      }
+      const result = await assignmentSubmissions.find(query).toArray();
+      res.send(result);
+    });
+
+    //Posting New Assignments to the DataBase
+    app.post("/assignments", async (req, res) => {
       const newAssignments = req.body;
       console.log(newAssignments);
       const result = await assignmentCollections.insertOne(newAssignments);
       res.send(result);
-    })
+    });
 
-  //Posting Submitted Assignments to the DataBase 
-    app.post('/submissions', async(req,res)=>{
+    //Posting Submitted Assignments to the DataBase
+    app.post("/submissions", async (req, res) => {
       const newSubmission = req.body;
       console.log(newSubmission);
       const result = await assignmentSubmissions.insertOne(newSubmission);
       res.send(result);
-    })
-
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -77,11 +91,10 @@ async function run() {
 }
 run().catch(console.dir);
 
-
-app.get('/',(req,res) => {
-    res.send('Learning is ON')
-})
+app.get("/", (req, res) => {
+  res.send("Learning is ON");
+});
 
 app.listen(port, () => {
-    console.log(`Learniverse is live on port ${port}`)
-})
+  console.log(`Learniverse is live on port ${port}`);
+});
