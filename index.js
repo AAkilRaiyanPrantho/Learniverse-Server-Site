@@ -101,6 +101,25 @@ async function run() {
       res.send(result);
     })
 
+
+    // Update Data for assignment checking
+    app.put("/submissions/:id", async(req,res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options = { upsert: true};
+      const updatedMarks = req.body;
+      const marks = {
+        $set: {
+          status: updatedMarks.status,
+          feedback: updatedMarks.feedback,
+          marks: updatedMarks.marks,
+          
+        }
+      }
+      const result = await assignmentCollections.updateOne(filter, marks,options);
+      res.send(result);
+    })
+
     //Posting New Assignments to the DataBase
     app.post("/assignments", async (req, res) => {
       const newAssignments = req.body;
