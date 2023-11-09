@@ -44,6 +44,35 @@ async function run() {
       res.send(result);
     });
 
+    // Read data to Update assignments
+    app.get("/assignments/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await assignmentCollections.findOne(query);
+      res.send(result);
+    })
+
+    // Update Data for assignments
+    app.put("/assignments/:id", async(req,res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options = { upsert: true};
+      const updatedAssignment = req.body;
+      const assignment = {
+        $set: {
+          title: updatedAssignment.title,
+          thumbnail: updatedAssignment.thumbnail,
+          assignmentDifficultyLevel: updatedAssignment.assignmentDifficultyLevel,
+          marks: updatedAssignment.marks,
+          assignmentDescription: updatedAssignment.assignmentDescription,
+          dueDate: updatedAssignment.dueDate
+        }
+      }
+      const result = await assignmentCollections.updateOne(filter, assignment,options);
+      res.send(result);
+    })
+
+
     // Reading all submitted data from the data base
     app.get("/submissions", async (req, res) => {
       console.log(req.query);
