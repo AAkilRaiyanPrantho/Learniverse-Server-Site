@@ -92,6 +92,15 @@ async function run() {
       res.send(result);
     });
 
+
+    // Read data to Update checked assignments
+    app.get("/submissions/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await assignmentSubmissions.findOne(query);
+      res.send(result);
+    })
+
     //Posting New Assignments to the DataBase
     app.post("/assignments", async (req, res) => {
       const newAssignments = req.body;
